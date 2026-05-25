@@ -28,34 +28,34 @@ ZeroTrust Guardian is a **Chrome Extension** that sits silently in your browser 
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  Chrome Extension (Consumer Frontend)                    │
-│  ├── background.js (Service Worker — triggers analysis)  │
-│  ├── content.js (Floating trust indicator)               │
-│  └── popup/ (Premium glassmorphism popup)                │
+│  Chrome Extension (Consumer Frontend)                   │
+│  ├── background.js (Service Worker — triggers analysis) │
+│  ├── content.js (Floating trust indicator)              │
+│  └── popup/ (Premium glassmorphism popup)               │
 └─────────────────┬───────────────────────────────────────┘
                   │ REST API
                   ▼
 ┌─────────────────────────────────────────────────────────┐
-│  FastAPI Backend (AI Analysis Engine)                    │
-│  ├── /api/v1/analyze (Quick analysis for extension)      │
-│  ├── /api/scan (Full deep scan)                          │
-│  └── Multi-Agent Orchestrator                            │
-│      ├── Recon Agent (Crawling + Surface Mapping)        │
-│      ├── Scam Detection Agent (Dark patterns + Phishing) │
-│      ├── Vuln Scanner Agent (Headers + CORS + XSS)       │
-│      └── Report Agent (Gemini AI-powered summaries)      │
+│  FastAPI Backend (AI Analysis Engine)                   │
+│  ├── /api/v1/analyze (Quick analysis for extension)     │
+│  ├── /api/scan (Full deep scan)                         │
+│  └── Multi-Agent Orchestrator                           │
+│      ├── Recon Agent (Crawling + Surface Mapping)       │
+│      ├── Scam Detection Agent (Dark patterns + Phishing)│
+│      ├── Vuln Scanner Agent (Headers + CORS + XSS)      │
+│      └── Report Agent (Gemini AI-powered summaries)     │
 └─────────────────┬───────────────────────────────────────┘
                   │
                   ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Google Gemini AI (Consumer-friendly threat summaries)    │
+│  Google Gemini AI (Consumer-friendly threat summaries)  │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│  Next.js Dashboard (Product Landing Page + Web Scanner)  │
-│  ├── / (Hero + Features + CTA)                           │
-│  ├── /scan (Check a Link)                                │
-│  └── /reports (Safety History)                            │
+│  Next.js Dashboard (Product Landing Page + Web Scanner) │
+│  ├── / (Hero + Features + CTA)                          │
+│  ├── /scan (Check a Link)                               │
+│  └── /reports (Safety History)                          │
 └─────────────────────────────────────────────────────────┘
 ```
 
