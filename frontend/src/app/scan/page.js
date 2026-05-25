@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import DynamicIsland from '../../components/DynamicIsland';
 
 /* ─── Helpers ──────────────────────────────────────────────────────────── */
 
@@ -49,14 +50,25 @@ export default function CheckLinkPage() {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [backendOffline, setBackendOffline] = useState(false);
   const [history, setHistory] = useState([]);
-  const [shareStatus, setShareStatus] = useState(''); // '', 'copied', 'shared', 'error'
+  
+  // Dynamic Island State
+  const [islandVisible, setIslandVisible] = useState(false);
+  const [islandMessage, setIslandMessage] = useState(null);
 
   // Load history on mount
   useEffect(() => {
     setHistory(loadHistory());
   }, []);
+
+  const showToast = (icon, text) => {
+    setIslandMessage(
+      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '16px' }}>{icon}</span> {text}
+      </span>
+    );
+    setIslandVisible(true);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,9 +76,7 @@ export default function CheckLinkPage() {
     setIsLoading(true);
     setResult(null);
     setError('');
-    setBackendOffline(false);
-    setShareStatus('');
-
+    
     try {
       const res = await fetch('http://localhost:8000/api/v1/analyze', {
         method: 'POST',
@@ -152,7 +162,7 @@ export default function CheckLinkPage() {
     if (navigator.share) {
       try {
         await navigator.share({ title: 'ZeroTrust Guardian Scan Result', text, url: 'https://sumitsaraswat362.github.io/ZeroTrust-Guardian/' });
-        setShareStatus('shared');
+        showToast('✓', 'Shared link successfully');
       } catch (err) {
         if (err.name !== 'AbortError') {
           // User cancelled — fall through to clipboard
@@ -167,11 +177,10 @@ export default function CheckLinkPage() {
   async function copyFallback(text) {
     try {
       await navigator.clipboard.writeText(text);
-      setShareStatus('copied');
+      showToast('✓', 'Copied to clipboard');
     } catch {
-      setShareStatus('error');
+      showToast('✗', 'Failed to copy');
     }
-    setTimeout(() => setShareStatus(''), 2200);
   }
 
   /* ─── Clear history ──────────────────────────────────────────────────── */
@@ -201,6 +210,11 @@ export default function CheckLinkPage() {
 
   return (
     <div className="animate-in">
+      <DynamicIsland 
+        isVisible={islandVisible} 
+        message={islandMessage} 
+        onClose={() => setIslandVisible(false)} 
+      />
       <div className="page-header">
         <h2>Check a Link</h2>
         <p>Paste any URL to instantly see if it&apos;s safe to visit.</p>
@@ -225,7 +239,7 @@ export default function CheckLinkPage() {
       </form>
 
       {/* ── Recent Scans History ──────────────────────────────────────────── */}
-      {history.length > 0 && !result && !isLoading && !error && !backendOffline && (
+      {history.length > 0 && !result && !isLoading && !error && (
         <div className="animate-in" style={{ marginTop: '36px' }}>
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -311,7 +325,7 @@ export default function CheckLinkPage() {
       )}
 
       {/* Examples */}
-      {!result && !isLoading && !error && !backendOffline && (
+      {!result && !isLoading && !error && (
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
           <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
             Try an example
@@ -404,31 +418,12 @@ export default function CheckLinkPage() {
                   transition: 'all var(--fast)',
                 }}
               >
-                {shareStatus === 'copied' ? (
-                  <>
-                    <span style={{ fontSize: '16px' }}>✓</span>
-                    Copied!
-                  </>
-                ) : shareStatus === 'shared' ? (
-                  <>
-                    <span style={{ fontSize: '16px' }}>✓</span>
-                    Shared!
-                  </>
-                ) : shareStatus === 'error' ? (
-                  <>
-                    <span style={{ fontSize: '16px' }}>✗</span>
-                    Failed
-                  </>
-                ) : (
-                  <>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
-                      <polyline points="16 6 12 2 8 6" />
-                      <line x1="12" y1="2" x2="12" y2="15" />
-                    </svg>
-                    Share Result
-                  </>
-                )}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+                  <polyline points="16 6 12 2 8 6" />
+                  <line x1="12" y1="2" x2="12" y2="15" />
+                </svg>
+                Share Result
               </button>
             </div>
 

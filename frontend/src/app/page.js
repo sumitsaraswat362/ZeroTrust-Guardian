@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import SpotlightCard from '../components/SpotlightCard';
+
+import ScrollReveal from '../components/ScrollReveal';
 
 export default function HomePage() {
   const [scanUrl, setScanUrl] = useState('');
   const [quickResult, setQuickResult] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [backendOffline, setBackendOffline] = useState(false);
   const [animatedStats, setAnimatedStats] = useState({ threats: 0, sites: 0, users: 0 });
   const statsRef = useRef(null);
   const [statsVisible, setStatsVisible] = useState(false);
@@ -46,7 +48,6 @@ export default function HomePage() {
     if (!scanUrl.trim()) return;
     setIsScanning(true);
     setQuickResult(null);
-    setBackendOffline(false);
     try {
       const res = await fetch('http://localhost:8000/api/v1/analyze', {
         method: 'POST',
@@ -185,84 +186,98 @@ export default function HomePage() {
       </section>
 
       {/* ── Stats ─────────────────────────────────────────────────── */}
-      <section className="stats-grid" ref={statsRef}>
-        <div className="stat-card">
-          <div className="stat-value">{animatedStats.threats.toLocaleString()}</div>
-          <div className="stat-label">Threats Blocked</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{animatedStats.sites.toLocaleString()}</div>
-          <div className="stat-label">Sites Analyzed</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{animatedStats.users.toLocaleString()}</div>
-          <div className="stat-label">Users Protected</div>
-        </div>
-      </section>
+      <ScrollReveal yOffset={60}>
+        <section className="stats-grid" ref={statsRef}>
+          <div className="stat-card">
+            <div className="stat-value">{animatedStats.threats.toLocaleString()}</div>
+            <div className="stat-label">Threats Blocked</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">{animatedStats.sites.toLocaleString()}</div>
+            <div className="stat-label">Sites Analyzed</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">{animatedStats.users.toLocaleString()}</div>
+            <div className="stat-label">Users Protected</div>
+          </div>
+        </section>
+      </ScrollReveal>
 
       {/* ── How It Works ──────────────────────────────────────────── */}
-      <section style={{ padding: '60px 0' }}>
-        <h3 className="section-title">How It Works</h3>
-        <p className="section-subtitle">Complex technology. Invisible protection.</p>
+      <ScrollReveal yOffset={60}>
+        <section style={{ padding: '60px 0' }}>
+          <h3 className="section-title">How It Works</h3>
+          <p className="section-subtitle">Complex technology. Invisible protection.</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
-          {[
-            { num: '01', icon: '🧩', title: 'Install', desc: 'Add the extension to Chrome. Zero config needed.' },
-            { num: '02', icon: '🤖', title: 'AI Analyzes', desc: 'Multi-agent AI checks SSL, dark patterns, and phishing signals silently.' },
-            { num: '03', icon: '🛡️', title: 'Stay Safe', desc: 'A subtle indicator warns you before any threat can cause damage.' },
-          ].map((step, i) => (
-            <div key={i} className="glass-card" style={{ position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: '16px', right: '20px', fontSize: '64px', fontWeight: 900, opacity: 0.04, lineHeight: 1, letterSpacing: '-0.04em' }}>{step.num}</div>
-              <div style={{ fontSize: '40px', marginBottom: '20px' }}>{step.icon}</div>
-              <h4 style={{ fontSize: '22px', fontWeight: 600, marginBottom: '8px' }}>{step.title}</h4>
-              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{step.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
+            {[
+              { num: '01', icon: '🧩', title: 'Install', desc: 'Add the extension to Chrome. Zero config needed.' },
+              { num: '02', icon: '🤖', title: 'AI Analyzes', desc: 'Multi-agent AI checks SSL, dark patterns, and phishing signals silently.' },
+              { num: '03', icon: '🛡️', title: 'Stay Safe', desc: 'A subtle indicator warns you before any threat can cause damage.' },
+            ].map((step, i) => (
+              <ScrollReveal key={i} delay={i * 0.1} yOffset={40}>
+                <div className="glass-card" style={{ position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', top: '16px', right: '20px', fontSize: '64px', fontWeight: 900, opacity: 0.04, lineHeight: 1, letterSpacing: '-0.04em' }}>{step.num}</div>
+                  <div style={{ fontSize: '40px', marginBottom: '20px' }}>{step.icon}</div>
+                  <h4 style={{ fontSize: '22px', fontWeight: 600, marginBottom: '8px' }}>{step.title}</h4>
+                  <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{step.desc}</p>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        </section>
+      </ScrollReveal>
 
       {/* ── Features ──────────────────────────────────────────────── */}
-      <section style={{ padding: '60px 0' }}>
-        <h3 className="section-title">What We Protect Against</h3>
-        <p className="section-subtitle">Real threats. Real-time detection.</p>
+      <ScrollReveal yOffset={60}>
+        <section style={{ padding: '60px 0' }}>
+          <h3 className="section-title">What We Protect Against</h3>
+          <p className="section-subtitle">Real threats. Real-time detection.</p>
 
-        <div className="features-grid">
-          {[
-            { icon: '🎣', title: 'Phishing', desc: 'Detects fake login pages and spoofed domains designed to steal your data.' },
-            { icon: '🎭', title: 'Dark Patterns', desc: 'Catches fake urgency timers, hidden charges, and manipulative tricks.' },
-            { icon: '🔓', title: 'Insecure Sites', desc: 'Validates SSL certificates and HTTPS to keep your connection safe.' },
-            { icon: '👁️', title: 'Hidden Trackers', desc: 'Flags excessive external scripts used for fingerprinting and tracking.' },
-            { icon: '💀', title: 'Scare Tactics', desc: 'Catches fake virus warnings and "your device is infected" scams.' },
-            { icon: '🤖', title: 'AI Analysis', desc: 'Gemini AI generates plain-English safety summaries anyone can understand.' },
-          ].map((f, i) => (
-            <div key={i} className="feature-card">
-              <div className="feature-icon">{f.icon}</div>
-              <div className="feature-title">{f.title}</div>
-              <p className="feature-desc">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+          <div className="features-grid">
+            {[
+              { icon: '🎣', title: 'Phishing', desc: 'Detects fake login pages and spoofed domains designed to steal your data.' },
+              { icon: '🎭', title: 'Dark Patterns', desc: 'Catches fake urgency timers, hidden charges, and manipulative tricks.' },
+              { icon: '🔓', title: 'Insecure Sites', desc: 'Validates SSL certificates and HTTPS to keep your connection safe.' },
+              { icon: '👁️', title: 'Hidden Trackers', desc: 'Flags excessive external scripts used for fingerprinting and tracking.' },
+              { icon: '💀', title: 'Scare Tactics', desc: 'Catches fake virus warnings and "your device is infected" scams.' },
+              { icon: '🤖', title: 'AI Analysis', desc: 'Gemini AI generates plain-English safety summaries anyone can understand.' },
+            ].map((f, i) => (
+              <ScrollReveal key={i} delay={i * 0.08} yOffset={40}>
+                <SpotlightCard className="feature-card" style={{ padding: 0 }}>
+                  <div style={{ padding: '32px' }}>
+                    <div className="feature-icon">{f.icon}</div>
+                    <div className="feature-title">{f.title}</div>
+                    <p className="feature-desc">{f.desc}</p>
+                  </div>
+                </SpotlightCard>
+              </ScrollReveal>
+            ))}
+          </div>
+        </section>
+      </ScrollReveal>
 
       {/* ── CTA ───────────────────────────────────────────────────── */}
-      <section className="cta-section">
-        <div className="glass-card cta-card">
-          <h3 style={{ fontSize: '40px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '12px' }}>
-            Ready to browse safely?
-          </h3>
-          <p style={{ fontSize: '20px', color: 'var(--text-secondary)', marginBottom: '32px', maxWidth: '560px', margin: '0 auto 32px' }}>
-            Install ZeroTrust Guardian and let AI protect you automatically.
-          </p>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/get-extension" className="btn btn-primary" style={{ padding: '16px 40px', fontSize: '17px' }}>
-              Add to Chrome — Free
-            </Link>
-            <a href="https://github.com/sumitsaraswat362/ZeroTrust-Guardian" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ padding: '16px 40px', fontSize: '17px' }}>
-              ⭐ Star on GitHub
-            </a>
+      <ScrollReveal yOffset={80}>
+        <section className="cta-section">
+          <div className="glass-card cta-card">
+            <h3 style={{ fontSize: '40px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '12px' }}>
+              Ready to browse safely?
+            </h3>
+            <p style={{ fontSize: '20px', color: 'var(--text-secondary)', marginBottom: '32px', maxWidth: '560px', margin: '0 auto 32px' }}>
+              Install ZeroTrust Guardian and let AI protect you automatically.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link href="/get-extension" className="btn btn-primary" style={{ padding: '16px 40px', fontSize: '17px' }}>
+                Add to Chrome — Free
+              </Link>
+              <a href="https://github.com/sumitsaraswat362/ZeroTrust-Guardian" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ padding: '16px 40px', fontSize: '17px' }}>
+                ⭐ Star on GitHub
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
       {/* ── Tech Footer ───────────────────────────────────────────── */}
       <div style={{ textAlign: 'center', padding: '24px 0 60px', color: 'var(--text-muted)', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>

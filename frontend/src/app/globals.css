@@ -63,12 +63,12 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   background: var(--bg-base);
   color: var(--text-primary);
   line-height: 1.47059;
   font-weight: 400;
-  letter-spacing: -0.022em;
+  letter-spacing: -0.015em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -279,7 +279,8 @@ a:hover {
 }
 
 .btn:active {
-  transform: scale(0.96);
+  transform: scale(0.94);
+  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary {
@@ -306,13 +307,19 @@ a:hover {
 
 .glass-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(40px) saturate(200%);
-  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   padding: 32px;
   box-shadow: var(--shadow-md);
-  transition: transform var(--spring), box-shadow var(--spring);
+  transition: transform var(--spring), box-shadow var(--spring), border-color var(--fast);
+  position: relative;
+}
+
+.glass-card:active {
+  transform: scale(0.98);
+  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
