@@ -1,7 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+
+/* ─── Helpers ──────────────────────────────────────────────────────────── */
+
+const HISTORY_KEY = 'zt_scan_history';
+const MAX_HISTORY = 20;
+const DISPLAY_HISTORY = 5;
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(entry) {
+  const prev = loadHistory();
+  const next = [entry, ...prev.filter((h) => h.url !== entry.url)].slice(0, MAX_HISTORY);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+  return next;
+}
+
+function clearHistory() {
+  localStorage.removeItem(HISTORY_KEY);
+}
+
+function timeAgo(ts) {
+  const diff = (Date.now() - new Date(ts).getTime()) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return new Date(ts).toLocaleDateString();
+}
+
+function extractDomain(rawUrl) {
+  try { return new URL(rawUrl).hostname; } catch { return rawUrl; }
+}
+
+/* ─── Component ────────────────────────────────────────────────────────── */
 
 export default function CheckLinkPage() {
   const [url, setUrl] = useState('');
@@ -9,6 +50,13 @@ export default function CheckLinkPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [backendOffline, setBackendOffline] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [shareStatus, setShareStatus] = useState(''); // '', 'copied', 'shared', 'error'
+
+  // Load history on mount
+  useEffect(() => {
+    setHistory(loadHistory());
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,6 +65,7 @@ export default function CheckLinkPage() {
     setResult(null);
     setError('');
     setBackendOffline(false);
+    setShareStatus('');
 
     try {
       const res = await fetch('http://localhost:8000/api/v1/analyze', {
@@ -26,7 +75,20 @@ export default function CheckLinkPage() {
         signal: AbortSignal.timeout(15000),
       });
       if (!res.ok) throw new Error(`Server error (${res.status})`);
-      setResult(await res.json());
+      const data = await res.json();
+      setResult(data);
+
+      // ── Save to scan history ──
+      const entry = {
+        url: data.url || url.trim(),
+        status: data.status,
+        trust_score: data.trust_score,
+        reason: data.reason,
+        timestamp: new Date().toISOString(),
+        threats_count: data.threats?.length ?? 0,
+      };
+      const updated = saveHistory(entry);
+      setHistory(updated);
     } catch (err) {
       if (err.name === 'TimeoutError' || err.message === 'Failed to fetch' || err.name === 'TypeError') {
         setBackendOffline(true);
@@ -36,6 +98,46 @@ export default function CheckLinkPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  /* ─── Share ──────────────────────────────────────────────────────────── */
+
+  const handleShare = useCallback(async () => {
+    if (!result) return;
+    const domain = extractDomain(result.url);
+    const statusLabel = getStatus(result.status).label;
+    const text = `I checked ${domain} with ZeroTrust Guardian: ${statusLabel} (Trust Score: ${result.trust_score ?? '--'}/100). Check your links at https://sumitsaraswat362.github.io/ZeroTrust-Guardian/`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'ZeroTrust Guardian Scan Result', text, url: 'https://sumitsaraswat362.github.io/ZeroTrust-Guardian/' });
+        setShareStatus('shared');
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          // User cancelled — fall through to clipboard
+          await copyFallback(text);
+        }
+      }
+    } else {
+      await copyFallback(text);
+    }
+  }, [result]);
+
+  async function copyFallback(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setShareStatus('copied');
+    } catch {
+      setShareStatus('error');
+    }
+    setTimeout(() => setShareStatus(''), 2200);
+  }
+
+  /* ─── Clear history ──────────────────────────────────────────────────── */
+
+  const handleClearHistory = () => {
+    clearHistory();
+    setHistory([]);
   };
 
   const statusMap = {
@@ -53,6 +155,8 @@ export default function CheckLinkPage() {
     { label: 'github.com', url: 'https://github.com' },
     { label: 'suspicious IP link', url: 'http://192.168.1.1/login/verify-account/paypal' },
   ];
+
+  /* ─── Render ─────────────────────────────────────────────────────────── */
 
   return (
     <div className="animate-in">
@@ -78,6 +182,92 @@ export default function CheckLinkPage() {
           </div>
         </div>
       </form>
+
+      {/* ── Recent Scans History ──────────────────────────────────────────── */}
+      {history.length > 0 && !result && !isLoading && !error && !backendOffline && (
+        <div className="animate-in" style={{ marginTop: '36px' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            maxWidth: '720px', margin: '0 auto 16px', padding: '0 4px',
+          }}>
+            <div style={{
+              fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)',
+              textTransform: 'uppercase', letterSpacing: '0.08em',
+            }}>
+              Recent Scans
+            </div>
+            <button
+              onClick={handleClearHistory}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'inherit',
+                padding: '4px 8px', borderRadius: 'var(--radius-sm)',
+                transition: 'color var(--fast), background var(--fast)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--critical)';
+                e.currentTarget.style.background = 'rgba(255,59,48,0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--text-muted)';
+                e.currentTarget.style.background = 'none';
+              }}
+            >
+              Clear History
+            </button>
+          </div>
+
+          <div style={{
+            display: 'flex', flexDirection: 'column', gap: '8px',
+            maxWidth: '720px', margin: '0 auto',
+          }}>
+            {history.slice(0, DISPLAY_HISTORY).map((item, i) => {
+              const s = getStatus(item.status);
+              return (
+                <button
+                  key={`${item.url}-${i}`}
+                  onClick={() => setUrl(item.url)}
+                  className="glass-card"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '14px',
+                    padding: '14px 20px', cursor: 'pointer', width: '100%',
+                    textAlign: 'left', border: '1px solid var(--glass-border)',
+                    fontFamily: 'inherit', color: 'inherit',
+                    animation: `fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.06}s both`,
+                  }}
+                >
+                  {/* Status icon */}
+                  <span style={{ fontSize: '22px', flexShrink: 0 }}>{s.icon}</span>
+
+                  {/* Domain & time */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: '15px', fontWeight: 600, whiteSpace: 'nowrap',
+                      overflow: 'hidden', textOverflow: 'ellipsis',
+                    }}>
+                      {extractDomain(item.url)}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                      {timeAgo(item.timestamp)}
+                    </div>
+                  </div>
+
+                  {/* Trust score pill */}
+                  <div style={{
+                    background: `${s.color}18`,
+                    color: s.color,
+                    fontSize: '13px', fontWeight: 700,
+                    padding: '4px 12px', borderRadius: 'var(--radius-full)',
+                    flexShrink: 0, letterSpacing: '-0.02em',
+                  }}>
+                    {item.trust_score ?? '--'}/100
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Examples */}
       {!result && !isLoading && !error && !backendOffline && (
@@ -188,6 +378,45 @@ export default function CheckLinkPage() {
               <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '12px' }}>
                 {hostname}
               </div>
+            </div>
+
+            {/* ── Share Result Button ────────────────────────────────────────── */}
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <button
+                className="btn btn-secondary"
+                onClick={handleShare}
+                style={{
+                  gap: '8px', fontSize: '15px', padding: '12px 28px',
+                  position: 'relative', overflow: 'hidden',
+                  transition: 'all var(--fast)',
+                }}
+              >
+                {shareStatus === 'copied' ? (
+                  <>
+                    <span style={{ fontSize: '16px' }}>✓</span>
+                    Copied!
+                  </>
+                ) : shareStatus === 'shared' ? (
+                  <>
+                    <span style={{ fontSize: '16px' }}>✓</span>
+                    Shared!
+                  </>
+                ) : shareStatus === 'error' ? (
+                  <>
+                    <span style={{ fontSize: '16px' }}>✗</span>
+                    Failed
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+                      <polyline points="16 6 12 2 8 6" />
+                      <line x1="12" y1="2" x2="12" y2="15" />
+                    </svg>
+                    Share Result
+                  </>
+                )}
+              </button>
             </div>
 
             {/* Threats */}

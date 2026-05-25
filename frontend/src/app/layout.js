@@ -65,6 +65,7 @@ function TopNav() {
   const navItems = [
     { href: '/', label: 'Overview' },
     { href: '/scan', label: 'Check Link' },
+    { href: '/privacy', label: 'Privacy' },
     { href: '/get-extension', label: 'Add to Chrome' },
   ];
 
