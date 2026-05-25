@@ -12,6 +12,7 @@ export default function RootLayout({ children }) {
         <title>ZeroTrust Guardian — Your AI Shield Against Online Threats</title>
         <meta name="description" content="ZeroTrust Guardian is an AI-powered Chrome extension that silently protects you from scams, phishing, and deceptive websites as you browse." />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
       </head>
       <body>
         {/* Apple-style breathing mesh background */}
@@ -35,35 +36,36 @@ export default function RootLayout({ children }) {
 
 function TopNav() {
   const pathname = usePathname();
-  const [engineStatus, setEngineStatus] = useState('Connecting...');
-  const [isOnline, setIsOnline] = useState(false);
+  const [engineStatus, setEngineStatus] = useState('Checking...');
+  const [isOnline, setIsOnline] = useState(null); // null = checking, true = online, false = offline
 
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const res = await fetch('http://localhost:8000/health');
+        const res = await fetch('http://localhost:8000/health', { signal: AbortSignal.timeout(3000) });
         if (res.ok) {
           setEngineStatus('Engine Online');
           setIsOnline(true);
         } else {
-          setEngineStatus('Engine Offline');
+          setEngineStatus('Cloud Mode');
           setIsOnline(false);
         }
       } catch (e) {
-        setEngineStatus('Engine Offline');
+        // On deployed site or when backend isn't running
+        setEngineStatus('Cloud Mode');
         setIsOnline(false);
       }
     };
     
     checkHealth();
-    const interval = setInterval(checkHealth, 10000);
+    const interval = setInterval(checkHealth, 30000);
     return () => clearInterval(interval);
   }, []);
 
   const navItems = [
     { href: '/', label: 'Overview' },
     { href: '/scan', label: 'Check Link' },
-    { href: '/reports', label: 'History' },
+    { href: '/get-extension', label: 'Add to Chrome' },
   ];
 
   return (
@@ -91,13 +93,26 @@ function TopNav() {
           })}
         </nav>
 
-        {/* Status indicator */}
+        {/* Status indicator — shows context-appropriate status */}
         <div className="nav-status">
-          <span className={`status-dot ${isOnline ? 'running' : 'failed'}`} />
-          <span className="status-text">{engineStatus}</span>
-          <Link href="/get-extension" className="btn btn-primary" style={{ padding: '6px 14px', fontSize: '13px', marginLeft: '12px' }}>
-            Add to Chrome
-          </Link>
+          {isOnline === true && (
+            <>
+              <span className="status-dot running" />
+              <span className="status-text">Engine Online</span>
+            </>
+          )}
+          {isOnline === false && (
+            <>
+              <span className="status-dot" style={{ background: 'var(--info)', boxShadow: '0 0 8px var(--info)' }} />
+              <span className="status-text" style={{ color: 'var(--info)' }}>Landing Page</span>
+            </>
+          )}
+          {isOnline === null && (
+            <>
+              <span className="status-dot" style={{ background: 'var(--text-muted)' }} />
+              <span className="status-text">Connecting...</span>
+            </>
+          )}
         </div>
       </div>
     </header>

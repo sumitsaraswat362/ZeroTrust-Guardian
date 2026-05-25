@@ -7,6 +7,7 @@ export default function HomePage() {
   const [scanUrl, setScanUrl] = useState('');
   const [quickResult, setQuickResult] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [backendOffline, setBackendOffline] = useState(false);
   const [animatedStats, setAnimatedStats] = useState({ threats: 0, sites: 0, users: 0 });
   const statsRef = useRef(null);
   const [statsVisible, setStatsVisible] = useState(false);
@@ -45,16 +46,18 @@ export default function HomePage() {
     if (!scanUrl.trim()) return;
     setIsScanning(true);
     setQuickResult(null);
+    setBackendOffline(false);
     try {
       const res = await fetch('http://localhost:8000/api/v1/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: scanUrl }),
+        signal: AbortSignal.timeout(15000),
       });
       const data = await res.json();
       setQuickResult(data);
     } catch {
-      setQuickResult({ status: 'unknown', trust_score: null, reason: 'Cannot reach the analysis engine.', threats: [] });
+      setBackendOffline(true);
     } finally {
       setIsScanning(false);
     }
@@ -96,6 +99,18 @@ export default function HomePage() {
             </button>
           </div>
         </form>
+
+        {/* Backend offline notice */}
+        {backendOffline && (
+          <div className="animate-in" style={{ textAlign: 'center', marginTop: '24px' }}>
+            <div className="glass-card" style={{ display: 'inline-block', padding: '16px 28px' }}>
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', margin: 0 }}>
+                🔌 Analysis engine requires the local backend. <Link href="/get-extension" style={{ color: 'var(--accent)' }}>Install the extension</Link> or{' '}
+                <Link href="/scan" style={{ color: 'var(--accent)' }}>learn how to start it</Link>.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Quick Result */}
         {quickResult && (() => {
@@ -170,10 +185,10 @@ export default function HomePage() {
         <h3 className="section-title">How It Works</h3>
         <p className="section-subtitle">Complex technology. Invisible protection.</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
           {[
             { num: '01', icon: '🧩', title: 'Install', desc: 'Add the extension to Chrome. Zero config needed.' },
-            { num: '02', icon: '🤖', title: 'AI Analyzes', desc: 'Multi-agent AI checks SSL, headers, dark patterns, and phishing signals silently.' },
+            { num: '02', icon: '🤖', title: 'AI Analyzes', desc: 'Multi-agent AI checks SSL, dark patterns, and phishing signals silently.' },
             { num: '03', icon: '🛡️', title: 'Stay Safe', desc: 'A subtle indicator warns you before any threat can cause damage.' },
           ].map((step, i) => (
             <div key={i} className="glass-card" style={{ position: 'relative', overflow: 'hidden' }}>
@@ -219,12 +234,12 @@ export default function HomePage() {
             Install ZeroTrust Guardian and let AI protect you automatically.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/scan" className="btn btn-primary" style={{ padding: '16px 40px', fontSize: '17px' }}>
-              Check a Link Now
+            <Link href="/get-extension" className="btn btn-primary" style={{ padding: '16px 40px', fontSize: '17px' }}>
+              Add to Chrome — Free
             </Link>
-            <Link href="/get-extension" className="btn btn-secondary" style={{ padding: '16px 40px', fontSize: '17px' }}>
-              Add to Chrome — It&apos;s Free
-            </Link>
+            <a href="https://github.com/sumitsaraswat362/ZeroTrust-Guardian" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ padding: '16px 40px', fontSize: '17px' }}>
+              ⭐ Star on GitHub
+            </a>
           </div>
         </div>
       </section>
