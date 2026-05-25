@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'export', // Enables static HTML export for GitHub Pages
+  basePath: '/ZeroTrust-Guardian',
   images: {
     unoptimized: true, // Required for static export
   }
