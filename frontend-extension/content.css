@@ -1,0 +1,106 @@
+/* ZeroTrust Guardian — Content Script Styles */
+/* Scoped via #zt-guardian-shield to avoid host page conflicts */
+
+#zt-guardian-shield * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#zt-guardian-shield .zt-shield-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+}
+
+#zt-guardian-shield .zt-shield-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+#zt-guardian-shield .zt-shield-content {
+  flex: 1;
+  min-width: 0;
+}
+
+#zt-guardian-shield .zt-shield-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(248, 250, 252, 0.7);
+  text-transform: uppercase;
+}
+
+#zt-guardian-shield .zt-shield-score {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+#zt-guardian-shield .zt-shield-expand {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(248, 250, 252, 0.5);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#zt-guardian-shield .zt-shield-expand:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(248, 250, 252, 0.9);
+}
+
+#zt-guardian-shield .zt-shield-detail {
+  padding: 0 14px 12px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+#zt-guardian-shield .zt-shield-reason {
+  font-size: 12px;
+  color: rgba(248, 250, 252, 0.6);
+  line-height: 1.5;
+  padding-top: 10px;
+}
+
+#zt-guardian-shield .zt-shield-threats {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#zt-guardian-shield .zt-shield-threat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: rgba(248, 250, 252, 0.8);
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+}
+
+#zt-guardian-shield .zt-shield-threat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Pulse animation for danger state */
+#zt-guardian-shield.zt-pulse {
+  animation: zt-pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes zt-pulse-glow {
+  0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08); }
+  50% { box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08), 0 0 30px rgba(239, 68, 68, 0.4); }
+}

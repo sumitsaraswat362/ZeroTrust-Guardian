@@ -1,0 +1,22 @@
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.env
+frontend/.DS_Store
+
+# Backend
+backend/venv/
+backend/env/
+backend/__pycache__/
+backend/*.pyc
+backend/.pytest_cache/
+backend/.env
+backend/app.db
+backend/.DS_Store
+
+# Misc
+.DS_Store
+.idea/
+.vscode/

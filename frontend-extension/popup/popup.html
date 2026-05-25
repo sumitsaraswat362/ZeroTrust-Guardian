@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZeroTrust Guardian</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="header-brand">
+        <div class="brand-icon">🛡️</div>
+        <div class="brand-text">
+          <h1>ZeroTrust</h1>
+          <span class="brand-subtitle">Guardian</span>
+        </div>
+      </div>
+      <button id="rescan-btn" class="rescan-btn" aria-label="Rescan this page">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+      </button>
+    </header>
+
+    <!-- Trust Score Ring -->
+    <section class="score-section">
+      <div class="score-ring-container">
+        <svg class="score-ring" width="140" height="140" viewBox="0 0 140 140">
+          <circle class="score-ring-bg" cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"></circle>
+          <circle id="score-ring-progress" class="score-ring-progress" cx="70" cy="70" r="58" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="364.42" stroke-dashoffset="364.42" transform="rotate(-90 70 70)"></circle>
+        </svg>
+        <div class="score-value">
+          <span id="score-number" class="score-number">--</span>
+          <span class="score-label">Trust Score</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Status Banner -->
+    <div id="status-banner" class="status-banner status-analyzing">
+      <div class="status-icon" id="status-icon">🔍</div>
+      <div class="status-text">
+        <div id="status-title" class="status-title">Analyzing</div>
+        <div id="status-reason" class="status-reason">Scanning page for threats...</div>
+      </div>
+    </div>
+
+    <!-- Threat List -->
+    <section id="threats-section" class="threats-section" style="display: none;">
+      <h3 class="threats-heading">Detected Issues</h3>
+      <div id="threats-list" class="threats-list"></div>
+    </section>
+
+    <!-- Current URL -->
+    <div class="url-bar">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+      <span id="current-url" class="current-url">Loading...</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <span>Powered by AI</span>
+      <span class="footer-dot">•</span>
+      <span>Real-time Protection</span>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

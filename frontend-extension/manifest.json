@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "ZeroTrust Guardian",
+  "version": "1.0.0",
+  "description": "Your AI-powered digital guardian. Instantly detects scams, phishing, and deceptive websites as you browse — silently protecting you in real time.",
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "ZeroTrust Guardian"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "alarms"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ]
+}
